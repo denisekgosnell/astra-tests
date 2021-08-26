@@ -8,29 +8,41 @@
     "Basic Page Loaded"
     <script>
       // Define custom promise function
-      const addData = async () => {
+      const addData = async (testNum) => {
         const response = await fetch("/.netlify/functions/writeRestAPI", {
           method: "POST",
-          body: Math.floor(Math.random()),
+          body: testNum,
         });
         const responseBody = await response.json();
       };
 
-      async function timeTest() {
-        const call1 = addData();
-        //const call2 = addData();
-        //const call3 = addData();
-
-        const results = await Promise.all([call1]);
+      async function timeTest(iteration, numTests) {
+        const base = [...Array(numTests).keys()];
+        // to make test numbers 20, 21, ... 29 (etc)
+        const tests = base.map((x) => iteration * numTests + x);
+        const results = await Promise.all(
+          tests.map(async (test) => {
+            const result = await addData(test);
+          })
+        );
         return results;
       }
+      const iterations = 10; // todo: user input in UI
+      const numberTests = 10; // todo: user input in UI
+      
+      function runTests(iterations, numberTests) {
+        for (i = 0; i < iterations; i++) {
+          let startTime = Date.now();
+          document.write("Starting test iteration: " + i);
+          results = timeTest(i, numberTests).then(() => {
+            let finishTime = Date.now();
+            let timeTaken = finishTime - startTime;
+            document.write("Time taken in milliseconds: " + timeTaken + "\n\n");
+          });
+        }
+      }
 
-      let startTime = Date.now();
-      timeTest().then(() => {
-        let finishTime = Date.now();
-        let timeTaken = finishTime - startTime;
-        alert("Time taken in milliseconds: " + timeTaken);
-      });
+      runTests(iterations, numberTests);
     </script>
   </body>
 </html>
