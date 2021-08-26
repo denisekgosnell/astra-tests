@@ -2,12 +2,11 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Demonstration of fast async/await</title>
+    <title>Astra API tests</title>
   </head>
   <body>
     <script>
       // Define custom promise function
-
       function timeoutPromise(interval) {
         return new Promise((resolve, reject) => {
           setTimeout(function(){
@@ -21,7 +20,7 @@
         const timeoutPromise2 = timeoutPromise(3000);
         const timeoutPromise3 = timeoutPromise(3000);
 
-        const results = await Promise.all([timeoutPromiseResolve1, timeoutPromiseReject2, timeoutPromiseResolve3]);
+        const results = await Promise.all([timeoutPromise1, timeoutPromise2, timeoutPromise3]);
         return results;
       }
 
