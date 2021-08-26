@@ -29,13 +29,13 @@
       const iterations = 10; // todo: user input in UI
       const numberTests = 10; // todo: user input in UI
       
-      function runTests(iterations, numberTests) {
+      async function runTests(iterations, numberTests) {
         for (i = 0; i < iterations; i++) {
           let startTime = Date.now();
-          results = timeTest(i, numberTests).then(() => {
+          results = await timeTest(i, numberTests).then(() => {
             let finishTime = Date.now();
             let timeTaken = finishTime - startTime;
-            document.write("Iteration: " + i + "  | Time in milliseconds:  " + timeTaken + "<br>");
+            document.write("Iteration: " + i + "  | Time in milliseconds for " + numberTests + " async API calls:  " + timeTaken + "<br>");
           });
         }
       }
