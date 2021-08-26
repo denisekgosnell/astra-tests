@@ -1,26 +1,27 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>Astra API tests</title>
   </head>
   <body>
+    "Basic Page Loaded"
     <script>
       // Define custom promise function
-      function timeoutPromise(interval) {
-        return new Promise((resolve, reject) => {
-          setTimeout(function(){
-            resolve("done");
-          }, interval);
+      const addData = async () => {
+        const response = await fetch("/.netlify/functions/writeRestAPI", {
+          method: "POST",
+          body: Math.floor(Math.random()),
         });
+        const responseBody = await response.json();
       };
 
       async function timeTest() {
-        const timeoutPromise1 = timeoutPromise(3000);
-        const timeoutPromise2 = timeoutPromise(3000);
-        const timeoutPromise3 = timeoutPromise(3000);
+        const call1 = addData();
+        const call2 = addData();
+        const call3 = addData();
 
-        const results = await Promise.all([timeoutPromise1, timeoutPromise2, timeoutPromise3]);
+        const results = await Promise.all([call1, call2, call3]);
         return results;
       }
 
@@ -29,7 +30,7 @@
         let finishTime = Date.now();
         let timeTaken = finishTime - startTime;
         alert("Time taken in milliseconds: " + timeTaken);
-      })
+      });
     </script>
   </body>
 </html>
