@@ -5,7 +5,6 @@
     <title>Astra API tests</title>
   </head>
   <body>
-    "Basic Page Loaded"
     <script>
       // Define custom promise function
       const addData = async (testNum) => {
@@ -33,11 +32,10 @@
       function runTests(iterations, numberTests) {
         for (i = 0; i < iterations; i++) {
           let startTime = Date.now();
-          document.write("Starting test iteration: " + i);
           results = timeTest(i, numberTests).then(() => {
             let finishTime = Date.now();
             let timeTaken = finishTime - startTime;
-            document.write("Time taken in milliseconds: " + timeTaken + "\n\n");
+            document.write("Iteration: " + i + "  | Time in milliseconds:  " + timeTaken + "<br>");
           });
         }
       }
