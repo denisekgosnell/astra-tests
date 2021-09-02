@@ -1,56 +1,59 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8" />
     <title>Netlify + Astra</title>
-      <link href='https://fonts.googleapis.com/css?family=Muli' rel='stylesheet'>
-      <style>
-      body {
-          font-family: 'Muli';font-size: 12px;
-      }
-      </style>
-      </head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="basics.css">
+    <link rel="shortcut icon" href="#">
+  </head>
+  <article>
   <body>
-    <img src="cloudComputing.png" alt="When the clouds combine..." style="width:500px;"></img>
+    <h1>
+        <img src="cloudComputing.png" alt="When the clouds combine..." width="500px"></img>
+        How fast is Netlify + Astra?
+      </h1>
     <p>On first go, I wrote my timing test like: </p>
 
     <pre>
       <code>
-        function runTests(iterations, numberTests) {
-          for (i = 0; i < iterations; i++) {
-            var startTime = new Date();
-            results = timeTest(i, numberTests).then(() => {
-              var finishTime = new Date();
-              var timeTaken = finishTime - startTime;
-            );
-          }
-        }
-      </code>
+  1  function runTests(iterations, numberTests) {
+  2    for (i = 0; i < iterations; i++) {
+  3      var <span style="color:#EB6C34; font-weight:bold">startTime</span> = new Date();
+  4      results = timeTest(i, numberTests).then(() => {
+  5        var <span style="color:#EB6C34; font-weight:bold">finishTime</span> = new Date();
+  6        var timeTaken = finishTime - startTime;
+  7      );
+  8    }
+  9  }</code>
     </pre>
+
     <p> Click the button below to see the results: </p>
     <script src="asyncTests.js"></script>
 
     <button onclick="runBadTests(10, 10)">Run Bad Tests</button>
-    <div id="badOutput"></div>
+    <pre><code><div id="badOutput"></div></code></pre>
+    
 
     <p>Then, I wrote my timing test like: </p>
 
     <pre>
       <code>
-        async function runTests(iterations, numberTests) {
-          for (i = 0; i < iterations; i++) {
-            var startTime = new Date();
-            results = await timeTest(i, numberTests).then(() => {
-              var finishTime = new Date();
-              var timeTaken = finishTime - startTime;
-            );
-          }
-        }
-      </code>
+  1  <span style="color:#EB6C34; font-weight:bold">async</span> function runTests(iterations, numberTests) {
+  2    for (i = 0; i < iterations; i++) {
+  3      var startTime = new Date();
+  4      results = <span style="color:#EB6C34; font-weight:bold">await</span> timeTest(i, numberTests).then(() => {
+  5        var finishTime = new Date();
+  6        var timeTaken = finishTime - startTime;
+  7      );
+  8    }
+  9  }</code>
     </pre>
+
     <p> Click the button below to see the results: </p>
     <button onclick="runGoodTests(10, 10)">Run Good Tests</button>
-    <div id="goodOutput"></div>
+    <pre><code><div id="goodOutput"></div></code></pre>
 
+    </article>
   </body>
 </html>
