@@ -22,46 +22,13 @@ async function timeTest(iteration, numTests) {
   return results;
 }
 
-async function runGoodTests(iterations, numberTests) {
-  var newDiv = document.createElement("div");
-  var currentDiv = document.getElementById("main");
-  var newContent = document.createTextNode(
-    "Iteration | # API Calls | Start Time | End Time | Total Time "
-  );
-  newDiv.appendChild(newContent);
-  newDiv.innerHTML += "<br>";
-  for (i = 0; i < iterations; i++) {
-    var startTime = new Date();
-    results = await timeTest(i, numberTests).then(() => {
-      var finishTime = new Date();
-      var timeTaken = finishTime - startTime;
-      var newContent = document.createTextNode(
-        i +
-          " | " +
-          numberTests +
-          " | " +
-          startTime.toISOString() +
-          " | " +
-          finishTime.toISOString() +
-          " | " +
-          timeTaken
-      );
-      newDiv.appendChild(newContent);
-      newDiv.innerHTML += "<br>";
-      // Adding the newly created element and its content into the DOM
-      document.body.appendChild(newDiv, currentDiv);
-    });
-  }
-}
-
 function runBadTests(iterations, numberTests) {
-  var newDiv = document.createElement("div");
-  var currentDiv = document.getElementById("main");
+  var currentDiv = document.getElementById("badOutput");
   var newContent = document.createTextNode(
     "Iteration | # API Calls | Start Time | End Time | Total Time "
   );
-  newDiv.appendChild(newContent);
-  newDiv.innerHTML += "<br>";
+  currentDiv.appendChild(newContent);
+  currentDiv.innerHTML += "<br>";
   for (i = 0; i < iterations; i++) {
     var startTime = new Date();
     results = timeTest(i, numberTests).then(() => {
@@ -78,10 +45,37 @@ function runBadTests(iterations, numberTests) {
           " | " +
           timeTaken
       );
-      newDiv.appendChild(newContent);
-      newDiv.innerHTML += "<br>";
-      // Adding the newly created element and its content into the DOM
-      document.body.appendChild(newDiv, currentDiv);
+      currentDiv.appendChild(newContent);
+      currentDiv.innerHTML += "<br>";
+    });
+  }
+}
+
+async function runGoodTests(iterations, numberTests) {
+  var currentDiv = document.getElementById("goodOutput");
+  var newContent = document.createTextNode(
+    "Iteration | # API Calls | Start Time | End Time | Total Time "
+  );
+  currentDiv.appendChild(newContent);
+  currentDiv.innerHTML += "<br>";
+  for (i = 0; i < iterations; i++) {
+    var startTime = new Date();
+    results = await timeTest(i, numberTests).then(() => {
+      var finishTime = new Date();
+      var timeTaken = finishTime - startTime;
+      var newContent = document.createTextNode(
+        i +
+          " | " +
+          numberTests +
+          " | " +
+          startTime.toISOString() +
+          " | " +
+          finishTime.toISOString() +
+          " | " +
+          timeTaken
+      );
+      currentDiv.appendChild(newContent);
+      currentDiv.innerHTML += "<br>";
     });
   }
 }

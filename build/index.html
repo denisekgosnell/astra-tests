@@ -11,6 +11,7 @@
       </style>
       </head>
   <body>
+    <img src="cloudComputing.png" alt="When the clouds combine..." style="width:500px;"></img>
     <p>On first go, I wrote my timing test like: </p>
 
     <pre>
@@ -28,7 +29,9 @@
     </pre>
     <p> Click the button below to see the results: </p>
     <script src="asyncTests.js"></script>
+
     <button onclick="runBadTests(10, 10)">Run Bad Tests</button>
+    <div id="badOutput"></div>
 
     <p>Then, I wrote my timing test like: </p>
 
@@ -47,6 +50,7 @@
     </pre>
     <p> Click the button below to see the results: </p>
     <button onclick="runGoodTests(10, 10)">Run Good Tests</button>
+    <div id="goodOutput"></div>
 
   </body>
 </html>
