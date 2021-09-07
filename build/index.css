@@ -17,11 +17,14 @@ article > .aside {
 }
 
 article > blockquote {
-    grid-column: 3 / span 2;
-    margin: 0px 0;
-    color: #666;
-    border-left: 3px solid black;
-    padding-left: 10px;
+    grid-column: 4 / span 2;
+    margin: 0px 0px;
+    color: #EB6C34;
+    border-left: 3px solid grey;
+    padding-left: 20px;
+    font-family: 'Muli',sans-serif;
+    font-size: 18px;
+    font-style: strong;
 }
 
 /* General styling */

@@ -11,16 +11,44 @@
   <body>
     <h1>
         <img src="cloudComputing.png" alt="When the clouds combine..." width="500px"></img>
+        <br> <br>
         How fast is Netlify + Astra?
-      </h1>
-    <p>On first go, I wrote my timing test like: </p>
+    </h1>
+    <h2>A JavaScript newbie's journey to understanding async and await in context of webapp performance testing.</h2>
 
+    <p>After my first introduction to JavaScript about 6 months ago, I wanted to reach a deeper understanding of the builtin asynchronous programming concepts within the JavaScript language: <code>async</code>, <code>await</code>, and <code>promises</code>.</p>
+
+    <p>I don't know about you, but I prefer to learn new concepts by applying them to a real problem. So, I came up with a close to real-world, testable question to teach myself these concepts:</p>
+      <blockquote>
+        How long will it take to fetch data via REST APIs from a webpage?
+      </blockquote> 
+    <p>There are many, many ways we can do this. This post focuses on timing the roundtrip API calls between two different cloud based services: </p>
+    <blockquote>
+        1. Webapp hosting and content delivery network (CDN): Netlify<br>
+        2. Cloud Database: Astra<br>
+    </blockquote>
+
+    <p>The rest of this post details how I setup the timing tests using asynchronous API calls, and a few hiccups I ran into along the way. <a href="https://github.com/DataStax-Examples/todo-astra-jamstack-netlify#prerequisites" target="_blank">Go here for a 10 minute tutorial</a> on how to setup Netlify functions to make API calls to Astra db.</p>
+
+    <h3>How do I setup asynchronous timing tests?</h3>
+    <p>Our goal is to time the round trip of 10 asynchronous (meaning in parallel or simultaneous) API calls from a simple webapp to a cloud database and back. Also, we want to do this multiple times to understand the overall average. The pseudocode for this would look like:</p>
     <pre>
       <code>
-  1  function runTests(iterations, numberTests) {
-  2    for (i = 0; i < iterations; i++) {
+  1  Write a function to run multiple rounds of tests
+  2  For each round of testing
+  3     Start a timer in the app
+  4     Call a function that will perform 10 asynchronous API calls
+  5     Stop the timer in the app
+  6     Display the total time for that round</code>
+    </pre>
+
+    <p>The above pseudocode translates into the following JavaScript:</p>
+    <pre>
+      <code>
+  1  function runTests(rounds, numberAPICalls) {
+  2    for (round = 0; round < rounds; round++) {
   3      var <span style="color:#EB6C34; font-weight:bold">startTime</span> = new Date();
-  4      results = timeTest(i, numberTests).then(() => {
+  4      timeTest(numberAPICalls).then(() => {
   5        var <span style="color:#EB6C34; font-weight:bold">finishTime</span> = new Date();
   6        var timeTaken = finishTime - startTime;
   7      );
@@ -28,21 +56,34 @@
   9  }</code>
     </pre>
 
-    <p> Click the button below to see the results: </p>
+    <p>The work of doing 10 asynchronous API calls is in <code>timeTest</code>; we will get to what that does after we take a look at my first mistake.</p> 
+    <p>Click the button below to run the testing suite with the function definition above. Before reading the answer, can you see what is wrong with the output?</p>
     <script src="asyncTests.js"></script>
 
     <button onclick="runBadTests(10, 10)">Run Bad Tests</button>
     <pre><code><div id="badOutput"></div></code></pre>
-    
 
-    <p>Then, I wrote my timing test like: </p>
+    <h3>What's wrong with these results?</h3>
+    <p>There are two glaring mistakes with the output above that led me to think we weren't setting this up correctly. First, the <code>Round</code> number is the same for each series of tests. Second, the <code>Start Time</code> is the exact same for each test.</p>
+      
+    <p>Something isn't right here. It seems like the round number and the start time are not updating with each subsequent series of tests. Instead, we want both the round number and start time to wait for the tests to complete before changing value.</p>
+    
+    <p>This is where we run into the <code>async</code> and <code>await</code> pattern in JavaScript.</p>
+
+    <h3>What is the <code>async</code> / <code>await</code> pattern and how do we use it here?</h3>
+
+    <p>I was drawn to using the <code>async</code> / <code>await</code> pattern when I read the following in <a href="https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous/Async_await" target="_blank">this great blog by Mozilla.</a></p>
+
+    <blockquote><code>await</code> can be put in front of any async promise-based function to pause your code on that line until the promise fulfills, then return the resulting value.</blockquote>
+
+    <p>We need to pause our code after the test so that the timer can correctly calculate the runtime for each set of asynchronous API calls. Let's change the function above into an <code>async</code> function and tell the code to pause for the entire set of API calls to finish with <code>await</code>before stopping the timer. This changes the function to the following: </p>
 
     <pre>
       <code>
-  1  <span style="color:#EB6C34; font-weight:bold">async</span> function runTests(iterations, numberTests) {
-  2    for (i = 0; i < iterations; i++) {
+  1  <span style="color:#EB6C34; font-weight:bold">async</span> function runTests(rounds, numberTests) {
+  2    for (round = 0; round < rounds; round++) {
   3      var startTime = new Date();
-  4      results = <span style="color:#EB6C34; font-weight:bold">await</span> timeTest(i, numberTests).then(() => {
+  4      <span style="color:#EB6C34; font-weight:bold">await</span> timeTest(numberAPICalls).then(() => {
   5        var finishTime = new Date();
   6        var timeTaken = finishTime - startTime;
   7      );
@@ -50,9 +91,47 @@
   9  }</code>
     </pre>
 
-    <p> Click the button below to see the results: </p>
+    <p>Click the button below to see the results when using the above structure for your testing skeleton:</p>
     <button onclick="runGoodTests(10, 10)">Run Good Tests</button>
     <pre><code><div id="goodOutput"></div></code></pre>
+
+    <p>Great! This testing suite is now properly timing only one round of API calls at a time. Last up, let's take a look at how we are making the API calls.</p>
+
+    <h3>How do you kick off a bunch of asynchronous API calls?</h3>
+
+    <p>I love how easy it is to use Netlify's <a href="https://www.netlify.com/products/functions/" target="_blank">functions</a> feature. For this project, I created <a href="https://github.com/denisekgosnell/astra-tests/blob/master/functions/writeRestAPI.js" target="_blank">one REST API</a> to make calls from Netlify to the database in Astra. In the timing suite, the API call is made in one async function which waits for the payload to return. You can see the same <code>async / await</code> pattern in the function below to make the API call and wait for the result: </p>
+
+    <pre>
+      <code>
+  1  const addData = <span style="color:#EB6C34; font-weight:bold">async</span> (testNumber) => {
+  2    const response = <span style="color:#EB6C34; font-weight:bold">await</span> fetch("/.netlify/functions/writeRestAPI", {
+  3      method: "POST",
+  4      body: testNumber,
+  5    });
+  6    const responseBody = await response.json();
+  7  };</code>
+    </pre>  
+    
+    <p>The last step in our setup is to make 10 simultaneous calls to this API. We need one last <code>async</code> function for this:</p>
+    <pre>
+      <code>
+  1   async function timeTest(numberOfTests) {
+  2     // to make test numbers 0, 1, ... 9 
+  3     const tests = [...Array(numberOfTests).keys()];
+  4     const results = await <span style="color:#EB6C34; font-weight:bold">Promise.all(</span>
+  5       tests.map(async (testNumber) => {
+  6         const result = await addData(testNumber);
+  7       })
+  8     <span style="color:#EB6C34; font-weight:bold">);</span>
+  9     return results;i
+  10  }</code>
+    </pre> 
+
+    <p>I highlighted one section in the above code snipit: <code>Promise.all()</code>. This is the final piece of key functionality for our testing. The use of <code>Promise.all()</code> here will wait for all 10 asynchronous API calls to return before returning the results.</p> 
+
+    <p>You can find all of the code for <a href="https://github.com/denisekgosnell/astra-tests" target="_blank">this project here.</a></p>
+
+    <p>Thanks for reading!</p>
 
     </article>
   </body>
