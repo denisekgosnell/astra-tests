@@ -31,13 +31,13 @@
     <p>The rest of this post details how I setup the timing tests using asynchronous API calls, and a few hiccups I ran into along the way. <a href="https://github.com/DataStax-Examples/todo-astra-jamstack-netlify#prerequisites" target="_blank">Go here for a 10 minute tutorial</a> on how to setup Netlify functions to make API calls to Astra db.</p>
 
     <h3>How do I setup asynchronous timing tests?</h3>
-    <p>Our goal is to time the round trip of 10 asynchronous (meaning in parallel or simultaneous) API calls from a simple webapp to a cloud database and back. Also, we want to do this multiple times to understand the overall average. The pseudocode for this would look like:</p>
+    <p>Our goal is to time the round trip of 10 asynchronous (meaning in parallel or simultaneous) API calls from a simple webapp (literally this one you are reading right now) to a cloud database and back. Also, we want to do this multiple times to understand the overall average. The pseudocode for this would look like:</p>
     <pre>
       <code>
   1  Write a function to run multiple rounds of tests
   2  For each round of testing
   3     Start a timer in the app
-  4     Call a function that will perform 10 asynchronous API calls
+  4     Call a function that will perform asynchronous API calls
   5     Stop the timer in the app
   6     Display the total time for that round</code>
     </pre>
@@ -56,11 +56,11 @@
   9  }</code>
     </pre>
 
-    <p>The work of doing 10 asynchronous API calls is in <code>timeTest</code>; we will get to what that does after we take a look at my first mistake.</p> 
-    <p>Click the button below to run the testing suite with the function definition above. Before reading the answer, can you see what is wrong with the output?</p>
+    <p>The work of doing the asynchronous API calls is in the <code>timeTest</code> function; we will get to what that does after we take a look at my first mistake.</p> 
+    <p>Click the button below to run this webapp's timing suite with the function definition above. Before reading the answer, can you see what is wrong with the output?</p>
     <script src="asyncTests.js"></script>
 
-    <button onclick="runBadTests(10, 10)">Run Bad Tests</button>
+    <button onclick="runBadTests(10, 10)">Run Bad Tests Live</button>
     <pre><code><div id="badOutput"></div></code></pre>
 
     <h3>What's wrong with these results?</h3>
@@ -92,14 +92,14 @@
     </pre>
 
     <p>Click the button below to see the results when using the above structure for your testing skeleton:</p>
-    <button onclick="runGoodTests(10, 10)">Run Good Tests</button>
+    <button onclick="runGoodTests(10, 10)">Run Good Tests Live</button>
     <pre><code><div id="goodOutput"></div></code></pre>
 
     <p>Great! This testing suite is now properly timing only one round of API calls at a time. Last up, let's take a look at how we are making the API calls.</p>
 
     <h3>How do you kick off a bunch of asynchronous API calls?</h3>
 
-    <p>I love how easy it is to use Netlify's <a href="https://www.netlify.com/products/functions/" target="_blank">functions</a> feature. For this project, I created <a href="https://github.com/denisekgosnell/astra-tests/blob/master/functions/writeRestAPI.js" target="_blank">one REST API</a> to make calls from Netlify to the database in Astra. In the timing suite, the API call is made in one async function which waits for the payload to return. You can see the same <code>async / await</code> pattern in the function below to make the API call and wait for the result: </p>
+    <p>I love how easy it is to use Netlify's <a href="https://www.netlify.com/products/functions/" target="_blank">functions</a> feature. For this project, I created <a href="https://github.com/denisekgosnell/astra-tests/blob/main/functions/writeRestAPI.js" target="_blank">one REST API</a> to make calls from Netlify to the database in Astra. In the timing suite, the API call is made in one async function which waits for the payload to return. You can see the same <code>async / await</code> pattern in the function below to make the API call and wait for the result: </p>
 
     <pre>
       <code>
@@ -112,22 +112,24 @@
   7  };</code>
     </pre>  
     
-    <p>The last step in our setup is to make 10 simultaneous calls to this API. We need one last <code>async</code> function for this:</p>
+    <p>The last step in our setup is to make simultaneous calls to this API. We need one last <code>async</code> function for this:</p>
     <pre>
       <code>
   1   async function timeTest(numberOfTests) {
   2     // to make test numbers 0, 1, ... 9 
   3     const tests = [...Array(numberOfTests).keys()];
   4     const results = await <span style="color:#EB6C34; font-weight:bold">Promise.all(</span>
-  5       tests.map(async (testNumber) => {
-  6         const result = await addData(testNumber);
+  5       tests.map(<span style="color:#EB6C34; font-weight:bold">async</span> (testNumber) => {
+  6         const result = <span style="color:#EB6C34; font-weight:bold">await</span> addData(testNumber);
   7       })
   8     <span style="color:#EB6C34; font-weight:bold">);</span>
   9     return results;i
   10  }</code>
     </pre> 
 
-    <p>I highlighted one section in the above code snipit: <code>Promise.all()</code>. This is the final piece of key functionality for our testing. The use of <code>Promise.all()</code> here will wait for all 10 asynchronous API calls to return before returning the results.</p> 
+    <p>I highlighted two sections in the above code snipit. First, let's look at <code>Promise.all()</code>. This is the final piece of key functionality for our testing. The use of <code>Promise.all()</code> here will wait for all 10 asynchronous API calls to return before returning the results.</p> 
+
+    <p>Lastly, we used <code>async / await</code> for each single API call on lines 5 and 6. This ensures that each single API call will complete.</p>
 
     <p>You can find all of the code for <a href="https://github.com/denisekgosnell/astra-tests" target="_blank">this project here.</a></p>
 
