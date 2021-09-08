@@ -1,7 +1,7 @@
-const iterations = 10; // todo: user input in UI
-const numberTests = 10; // todo: user input in UI
+const iterations = 10; 
+const numberTests = 10; 
 
-// Define custom promise function
+// a promise function that links to the writeRestAPI.js function
 const addData = async (testNum) => {
   const response = await fetch("/.netlify/functions/writeRestAPI", {
     method: "POST",
@@ -10,18 +10,18 @@ const addData = async (testNum) => {
   const responseBody = await response.json();
 };
 
+// a function that will make <numTests> of asyncronous API calls
+// and wait for all calls to return via the promise.all()
 async function timeTest(iteration, numTests) {
-  const base = [...Array(numTests).keys()];
-  // to make test numbers 20, 21, ... 29 (etc)
-  const tests = base.map((x) => iteration * numTests + x);
-  const results = await Promise.all(
-    tests.map(async (test) => {
-      const result = await addData(test);
-    })
-  );
-  return results;
+  const dataPromises = [];
+  for (let i = 0, ilen = numTests; i < ilen; i++) {
+    dataPromises.push(addData(i + iteration * numTests));
+  }
+  return await Promise.all(dataPromises);
 }
 
+// an incorrectly defined function because 
+// it doesn't wait for each group of API calls to complete
 function runBadTests(iterations, numberTests) {
   var currentDiv = document.getElementById("badOutput");
   var newContent = document.createTextNode(
@@ -52,6 +52,9 @@ function runBadTests(iterations, numberTests) {
   }
 }
 
+// a properly defined function because 
+// it does wait for each group of API calls to complete 
+// before issuing the next set of asychronous calls
 async function runGoodTests(iterations, numberTests) {
   var currentDiv = document.getElementById("goodOutput");
   var newContent = document.createTextNode(
