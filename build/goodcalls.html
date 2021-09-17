@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Better Structure for Timing API Calls</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="basics.css">
+    <link rel="shortcut icon" href="#">
+  </head>
+  <article>
+  <body>
+    <h1>
+        <img src="cloudComputing.png" alt="When the clouds combine..." width="500px"></img>
+        <br> <br>
+        How fast is Netlify + Astra?
+    </h1>
+    <pre>
+      <code>
+  1  <span style="color:#EB6C34; font-weight:bold">async</span> function runTests(rounds, numberTests) {
+  2    for (round = 0; round < rounds; round++) {
+  3      var startTime = new Date();
+  4      <span style="color:#EB6C34; font-weight:bold">await</span> timeTest(numberAPICalls).then(() => {
+  5        var finishTime = new Date();
+  6        var timeTaken = finishTime - startTime;
+  7      );
+  8    }
+  9  }</code>
+    </pre>
+
+    <p>Click the button below to see the results when using the above structure for your testing skeleton:</p>
+    <button onclick="runGoodTests(10, 10)">Run Good Tests Live</button>
+    <pre><code><div id="goodOutput"></div></code></pre>
+    
+    <p>Take me back to the <a href="https://datastax.medium.com/" target="_blank">article.</a></p>
+    <p>You can find all of the code for <a href="https://github.com/denisekgosnell/astra-tests" target="_blank">this project here.</a></p>
+
+    <p>Thanks for reading!</p>
+
+    </article>
+  </body>
+</html>
